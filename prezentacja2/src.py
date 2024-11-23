@@ -186,64 +186,43 @@ def get_ablationcam(image: torch.Tensor, model: torch.nn.Module, target_layer: t
         nonlocal activations
         activations = output
 
-    # Register hook for the target layer
     h1 = target_layer.register_forward_hook(forward_hook)
 
-    # Add batch dimension to the input image
     image = image.unsqueeze(0)  # Shape (1, 3, x, y)
     model.eval()
 
 
-    # Forward pass to get the original prediction
     pred = model(image)
-    y_c = pred[0, pred.argmax()].item()  # Predicted class score
+    y_c = pred[0, pred.argmax()].item()
 
     h1.remove()
 
-    # Convert activations to NumPy array
-    activations = activations.cpu().detach().numpy()  # Shape: (1, channels, height, width)
-    weights = np.zeros(activations.shape[1], dtype=np.float32)  # Shape: (channels,)
+    activations = activations.cpu().detach().numpy()
+    weights = np.zeros(activations.shape[1], dtype=np.float32)
 
-    print(type(activations), activations.shape)
-    print(type(weights), weights.shape)
-
-    # Iterating over channels to calculate modified weights
     for i in range(activations.shape[1]):
         def hook_zeros_k_map(module, inp, out):
             modified_output = out.clone()
-            modified_output[:, i] = 0  # Zero-out the ith channel
+            modified_output[:, i] = 0
             return modified_output
 
         hook = target_layer.register_forward_hook(hook_zeros_k_map)
 
-        # Forward pass with the modified feature map
         pred_mod = model(image)
-        y_k = pred_mod[0, pred.argmax()].item()  # Modified class score
+        y_k = pred_mod[0, pred.argmax()].item()
 
-        # Calculate the contribution weight for the ith channel
         weights[i] = (y_c - y_k) / y_c if y_c != 0 else 0
 
-        # Remove the hook after each iteration
         hook.remove()
 
-    # Remove the original hook for activations
     h1.remove()
 
-    # Weighted sum of activations
-    activations = activations[0]  # Remove batch dimension
-    ablationcam = np.zeros(activations.shape[1:], dtype=np.float32)  # Shape: (height, width)
+    activations = activations[0]
+    ablationcam = np.zeros(activations.shape[1:], dtype=np.float32)
 
     for i, w in enumerate(weights):
-        # Debugging type checks
-        #print(f"Type of activations: {type(activations)}")
-        #print(f"Type of activations[i, :, :]: {type(activations[i, :, :])}")
-        #print(f"Type of weight w: {type(w)}")
-        #print(f"Type of ablationcam: {type(ablationcam)}")
-
-        # Weighted sum
         ablationcam += float(w) * activations[i, :, :]
 
-    # Apply ReLU to keep only positive values
     ablationcam = np.maximum(ablationcam, 0)
 
     return ablationcam
