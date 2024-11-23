@@ -44,7 +44,7 @@ def get_image_tf(path: Path, x: int, y: int) -> tf.Tensor:
     img = tf.image.resize(img, (x, y))
     return img
 
-def overlay_plot(path: Path, cam: np.ndarray, alpha: float) -> None:
+"""def overlay_plot(path: Path, cam: np.ndarray, alpha: float) -> None:
     '''
     Function to overlay CAM on image
     It showes image, overlayed image and CAM
@@ -79,4 +79,43 @@ def overlay_plot(path: Path, cam: np.ndarray, alpha: float) -> None:
     ax[2].set_title('CAM')
     ax[2].axis('off')
 
-    plt.show() 
+    plt.show()"""
+
+
+def overlay_plot_torch(image: torch.Tensor, cam: np.ndarray, alpha: float) -> None:
+    '''
+    Function to overlay CAM on image
+    It shows the image, overlayed image, and CAM.
+
+    Args:
+        image (torch.Tensor): Image tensor with shape (3, x, y)
+        cam (np.ndarray): CAM with shape (x_, y_) x_ and y_ smaller than x and y
+        alpha (float): Alpha value for overlay
+
+    Returns:
+        None
+    '''
+    img = image.permute(1, 2, 0).numpy()
+    img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
+    cam_resized = cv2.resize(cam, (img.shape[1], img.shape[0]))
+    cam_resized = cv2.normalize(cam_resized, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
+    heatmap = cv2.applyColorMap(cam_resized, cv2.COLORMAP_JET)
+
+    overlayed = cv2.addWeighted(img, alpha, heatmap, 1 - alpha, 0)
+
+    fig, ax = plt.subplots(1, 3, figsize=(15, 5))
+    ax[0].imshow(img)
+    ax[0].set_title('Image')
+    ax[0].axis('off')
+
+    ax[1].imshow(overlayed)
+    ax[1].set_title('Overlayed')
+    ax[1].axis('off')
+
+    ax[2].imshow(cam_resized, cmap='jet')
+    ax[2].set_title('CAM')
+    ax[2].axis('off')
+
+    plt.show()

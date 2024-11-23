@@ -10,3 +10,4 @@ grad-cam
 keras
 tensorflow
 monai
+timm
