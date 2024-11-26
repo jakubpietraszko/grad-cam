@@ -12,3 +12,4 @@ tensorflow
 monai
 timm
 imageio
+scikit-image
