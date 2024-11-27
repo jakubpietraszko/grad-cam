@@ -4,6 +4,8 @@ import torch
 
 import tensorflow as tf
 
+import cv2
+
 def get_cam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module) -> np.ndarray:
     '''
     Function to calculate CAM
@@ -55,6 +57,7 @@ def get_cam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.
         cam += w * activations[0, i, :, :]
 
     cam = np.maximum(cam, 0)
+    cam = cv2.normalize(cam, None, 0, 1, cv2.NORM_MINMAX)
 
     return cam
 
@@ -110,6 +113,7 @@ def get_gradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch
         gradcam += w * activations[0, i, :, :]
 
     gradcam = np.maximum(gradcam, 0)
+    gradcam = cv2.normalize(gradcam, None, 0, 1, cv2.NORM_MINMAX)
 
     return gradcam
 
@@ -164,6 +168,7 @@ def get_hirescam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
         hirescam += w * activations[0, i, :, :]
 
     hirescam = np.maximum(hirescam, 0)
+    hirescam = cv2.normalize(hirescam, None, 0, 1, cv2.NORM_MINMAX)
 
     return hirescam
 
@@ -224,6 +229,7 @@ def get_ablationcam(image: torch.Tensor, model: torch.nn.Module, target_layer: t
         ablationcam += float(w) * activations[i, :, :]
 
     ablationcam = np.maximum(ablationcam, 0)
+    ablationcam = cv2.normalize(ablationcam, None, 0, 1, cv2.NORM_MINMAX)
 
     return ablationcam
 
@@ -290,7 +296,8 @@ def get_gradcamplusplus(image: torch.Tensor, model: torch.nn.Module, target_laye
     for i, w in enumerate(weights[0]):
         gradcamplusplus += w * activations[0, i, :, :]
 
-    gradcamplusplus = np.maximum(gradcamplusplus, 0) 
+    gradcamplusplus = np.maximum(gradcamplusplus, 0)
+    gradcamplusplus = cv2.normalize(gradcamplusplus, None, 0, 1, cv2.NORM_MINMAX)
 
     return gradcamplusplus
 
@@ -350,6 +357,7 @@ def get_xgradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
         xgradcam += w * activations[0, i, :, :]
 
     xgradcam = np.maximum(xgradcam, 0)
+    xgradcam = cv2.normalize(xgradcam, None, 0, 1, cv2.NORM_MINMAX)
 
     return xgradcam
 
@@ -420,5 +428,6 @@ def get_scorecam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
         scorecam += w * activations[0, i, :, :]
 
     scorecam = np.maximum(scorecam, 0)
+    scorecam = cv2.normalize(scorecam, None, 0, 1, cv2.NORM_MINMAX)
 
     return scorecam
