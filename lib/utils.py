@@ -10,6 +10,12 @@ import torchvision.transforms
 
 import tensorflow as tf
 
+
+
+from PIL import Image
+import torchvision.transforms as T
+import torch
+
 def get_image_torch(path: Path, x: int, y: int) -> torch.Tensor:
     '''
     Function to read image from path and resize it to x, y
@@ -22,7 +28,7 @@ def get_image_torch(path: Path, x: int, y: int) -> torch.Tensor:
     Returns:
         torch.Tensor: Image tensor with shape (3, x, y)
     '''
-    img = PIL.Image.open(path)
+    img = Image.open(path).convert("RGB")
     img = img.resize((x, y))
     img = torchvision.transforms.ToTensor()(img)
     return img
@@ -101,6 +107,9 @@ def overlay_plot_torch(image: torch.Tensor, cam: np.ndarray, alpha: float, save_
     cam_resized = cv2.resize(cam, (img.shape[1], img.shape[0]))
     cam_resized = cv2.normalize(cam_resized, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
 
+    # Invert the heatmap values
+    cam_resized = 255 - cam_resized
+
     heatmap = cv2.applyColorMap(cam_resized, cv2.COLORMAP_JET)
 
     overlayed = cv2.addWeighted(img, alpha, heatmap, 1 - alpha, 0)
@@ -112,6 +121,9 @@ def overlay_plot_torch(image: torch.Tensor, cam: np.ndarray, alpha: float, save_
     ax[1].imshow(overlayed)
     ax[1].axis('off')
 
+    cam_resized = 255 - cam_resized
+
+
     ax[2].imshow(cam_resized, cmap='jet')
     ax[2].axis('off')
 
@@ -119,6 +131,7 @@ def overlay_plot_torch(image: torch.Tensor, cam: np.ndarray, alpha: float, save_
         plt.savefig(save_path)
 
     plt.show()
+
 
 def plot_torch(image: torch.Tensor, save_path: Path = None) -> None:
     '''
@@ -148,7 +161,7 @@ def delete_the_least_important_pixels(image: torch.Tensor, cam: np.ndarray, perc
     Args:
         image (torch.Tensor): Image tensor with shape (3, x, y)
         cam (np.ndarray): CAM with shape (x_, y_) x_ and y_ smaller than x and y
-        percentage (float): Percentage of pixels to delete
+        percentage (float): Percentage of pixels to delete [0, 1]
 
     Returns:
         torch.Tensor: Image tensor with shape (3, x, y)

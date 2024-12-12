@@ -132,7 +132,7 @@ flamingo
 little blue heron
 American egret
 bittern
-crane
+crane bird
 limpkin
 European gallinule
 American coot
@@ -636,8 +636,8 @@ lumbermill
 magnetic compass
 mailbag
 mailbox
-maillot
-maillot
+maillot1
+maillot2
 manhole cover
 maraca
 marimba
