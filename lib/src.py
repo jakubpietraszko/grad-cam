@@ -6,7 +6,7 @@ import tensorflow as tf
 
 import cv2
 
-def get_cam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module) -> np.ndarray:
+def get_cam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module, target_class: int = None) -> np.ndarray:
     '''
     Function to calculate CAM
 
@@ -14,6 +14,7 @@ def get_cam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.
         image (torch.Tensor): Image tensor with shape (3, x, y)
         model (torch.nn.Module): Model
         target_layer (torch.nn.Module): Target layer
+        target_class (int | None): Target class
 
     Returns:
         np.ndarray: CAM
@@ -39,7 +40,11 @@ def get_cam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.
     output = model(image)
 
     model.zero_grad()
-    output[0, output.argmax()].backward()
+
+    if target_class is None:
+        output[0, output.argmax()].backward()
+    else:
+        output[0, target_class].backward()
 
     model.train()
 
@@ -62,7 +67,7 @@ def get_cam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.
     return cam
 
 
-def get_gradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module) -> np.ndarray:
+def get_gradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module, target_class: int = None) -> np.ndarray:
     '''
     Function to calculate GradCAM
 
@@ -70,6 +75,7 @@ def get_gradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch
         image (torch.Tensor): Image tensor with shape (3, x, y)
         model (torch.nn.Module): Model
         target_layer (torch.nn.Module): Target layer
+        target_class (int | None): Target class
 
     Returns:
         np.ndarray: GradCAM
@@ -95,7 +101,11 @@ def get_gradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch
     output = model(image)
 
     model.zero_grad()
-    output[0, output.argmax()].backward()
+
+    if target_class is None:
+        output[0, output.argmax()].backward()
+    else:
+        output[0, target_class].backward()
 
     model.train()
 
@@ -117,7 +127,7 @@ def get_gradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch
 
     return gradcam
 
-def get_hirescam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module) -> np.ndarray:
+def get_hirescam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module, target_class: int = None) -> np.ndarray:
     '''
     Function to calculate Hi-ResCAM
 
@@ -125,6 +135,7 @@ def get_hirescam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
         image (torch.Tensor): Image tensor with shape (3, x, y)
         model (torch.nn.Module): Model
         target_layer (torch.nn.Module): Target layer
+        target_class (int | None): Target
 
     Returns:
         np.ndarray: Hi-ResCAM
@@ -150,7 +161,11 @@ def get_hirescam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
     output = model(image)
 
     model.zero_grad()
-    output[0, output.argmax()].backward()
+
+    if target_class is None:
+        output[0, output.argmax()].backward()
+    else:
+        output[0, target_class].backward()
 
     model.train()
 
@@ -172,7 +187,7 @@ def get_hirescam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
 
     return hirescam
 
-def get_ablationcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module) -> np.ndarray:
+def get_ablationcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module, target_class: int = None) -> np.ndarray:
     '''
     Function to calculate AblationCAM
 
@@ -180,6 +195,7 @@ def get_ablationcam(image: torch.Tensor, model: torch.nn.Module, target_layer: t
         image (torch.Tensor): Image tensor with shape (3, x, y)
         model (torch.nn.Module): Model
         target_layer (torch.nn.Module): Target layer
+        target_class (int | None): Target class
 
     Returns:
         np.ndarray: AblationCAM
@@ -198,7 +214,11 @@ def get_ablationcam(image: torch.Tensor, model: torch.nn.Module, target_layer: t
 
 
     pred = model(image)
-    y_c = pred[0, pred.argmax()].item()
+
+    if target_class is None:
+        y_c = pred[0, pred.argmax()].item()
+    else:
+        y_c = pred[0, target_class].item()
 
     h1.remove()
 
@@ -235,7 +255,7 @@ def get_ablationcam(image: torch.Tensor, model: torch.nn.Module, target_layer: t
 
 
 
-def get_gradcamplusplus(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module) -> np.ndarray:
+def get_gradcamplusplus(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module, target_class: int = None) -> np.ndarray:
     '''
     Function to calculate Grad-CAM++
 
@@ -243,6 +263,7 @@ def get_gradcamplusplus(image: torch.Tensor, model: torch.nn.Module, target_laye
         image (torch.Tensor): Image tensor with shape (3, x, y)
         model (torch.nn.Module): Model
         target_layer (torch.nn.Module): Target layer
+        target_class (int | None): Target class
 
     Returns:
         np.ndarray: Grad-CAM++ heatmap
@@ -269,7 +290,11 @@ def get_gradcamplusplus(image: torch.Tensor, model: torch.nn.Module, target_laye
     output = model(image)
 
     model.zero_grad()
-    output[0, output.argmax()].backward()
+
+    if target_class is None:
+        output[0, output.argmax()].backward()
+    else:
+        output[0, target_class].backward()
 
     model.train()
 
@@ -303,7 +328,7 @@ def get_gradcamplusplus(image: torch.Tensor, model: torch.nn.Module, target_laye
 
 
 
-def get_xgradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module) -> np.ndarray:
+def get_xgradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module, target_class: int = None) -> np.ndarray:
     '''
     Function to calculate XGrad-CAM
 
@@ -311,6 +336,7 @@ def get_xgradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
         image (torch.Tensor): Image tensor with shape (3, x, y)
         model (torch.nn.Module): Model
         target_layer (torch.nn.Module): Target layer
+        target_class (int | None): Target
 
     Returns:
         np.ndarray: XGrad-CAM heatmap
@@ -336,7 +362,11 @@ def get_xgradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
     output = model(image)
 
     model.zero_grad()
-    output[0, output.argmax()].backward()
+
+    if target_class is None:
+        output[0, output.argmax()].backward()
+    else:
+        output[0, target_class].backward()
 
     model.train()
 
@@ -366,7 +396,7 @@ def get_xgradcam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
 import torch.nn.functional as F
 from tqdm import tqdm
 
-def get_scorecam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module) -> np.ndarray:
+def get_scorecam(image: torch.Tensor, model: torch.nn.Module, target_layer: torch.nn.Module, target_class: int = None) -> np.ndarray:
     '''
     Function to calculate Score-CAM
 
@@ -374,6 +404,7 @@ def get_scorecam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
         image (torch.Tensor): Image tensor with shape (3, x, y)
         model (torch.nn.Module): Model
         target_layer (torch.nn.Module): Target layer
+        target_class (int | None): Target class
 
     Returns:
         np.ndarray: Score-CAM heatmap
@@ -415,7 +446,10 @@ def get_scorecam(image: torch.Tensor, model: torch.nn.Module, target_layer: torc
         masked_image = input_tensors[:, i, :, :, :]
         with torch.no_grad():
             output = model(masked_image)
-        score = output[0, output.argmax()].item()
+        if target_class is not None:
+            score = output[0, target_class].item()
+        else:
+            score = output[0, output.argmax()].item()
         scores.append(score)
 
     scores = torch.Tensor(scores)
