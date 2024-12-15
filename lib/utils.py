@@ -175,3 +175,57 @@ def delete_the_least_important_pixels(image: torch.Tensor, cam: np.ndarray, perc
     img_np[mask] = [0, 0, 0]
 
     return torch.from_numpy(img_np).permute(2, 0, 1).float()
+
+def average_drop(Y: np.ndarray, O: np.ndarray) -> float:
+    '''
+    Function to calculate average drop in output values
+
+    Args:
+        Y (np.ndarray): Output of plain image
+        O (np.ndarray): Output of image with deleted pixels
+
+    Returns:
+        float: Average drop in output values
+    '''
+    return np.maximum(0, (Y - O)).sum() / Y.shape[0]
+
+def rate_of_increase_in_score(Y: np.ndarray, O: np.ndarray) -> float:
+    '''
+    Function to calculate rate of increase in score
+
+    Args:
+        Y (np.ndarray): Output of plain image
+        O (np.ndarray): Output of image with deleted pixels
+
+    Returns:
+        float: Rate of increase in score
+    '''
+    return (Y < O).sum() / Y.shape[0]
+
+id_name = dict()
+dups_id_name = dict()
+
+for i, name in enumerate(open('imagenet_classes.txt', 'r')):
+    name = name[:-1]
+    name = name.lower()
+    name = name.replace(' ', '_')
+    id_name[i] = name
+
+len(id_name)
+hash_name = dict()
+dups_hash_name = dict()
+
+for line in open('imagenet.txt', 'r'):
+    line = line[:-1]
+    h, i, n = line.split()
+    n = n.lower()
+    hash_name[h] = n
+len(hash_name)
+DICT = dict()
+
+for k1, v1 in id_name.items():
+    for k2, v2 in hash_name.items():
+        if v1 == v2:
+            DICT[k1] = (k1, k2, v1)
+            DICT[k2] = (k1, k2, v1)
+len(DICT)
