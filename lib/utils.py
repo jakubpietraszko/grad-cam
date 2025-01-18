@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 import torch
 import torchvision.transforms
 
-import tensorflow as tf
-
 
 from PIL import Image
 import torchvision.transforms as T
@@ -31,24 +29,6 @@ def get_image_torch(path: Path, x: int, y: int) -> torch.Tensor:
     img = Image.open(path).convert("RGB")
     img = img.resize((x, y))
     img = torchvision.transforms.ToTensor()(img)
-    return img
-
-
-def get_image_tf(path: Path, x: int, y: int) -> tf.Tensor:
-    """
-    Function to read image from path and resize it to x, y
-
-    Args:
-        path (Path): Path to image
-        x (int): Width of image
-        y (int): Height of image
-
-    Returns:
-        tf.Tensor: Image tensor with shape (x, y, 3)
-    """
-    img = tf.io.read_file(str(path))
-    img = tf.image.decode_image(img)
-    img = tf.image.resize(img, (x, y))
     return img
 
 

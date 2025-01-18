@@ -7,8 +7,6 @@ matplotlib
 pytorch-ignite
 torchsummary
 grad-cam
-keras
-tensorflow
 monai
 timm
 imageio
